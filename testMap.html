@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
+    <meta charset="utf-8">
+    <title> Interactive map visualization</title>
+    <script src="https://kit.fontawesome.com/c7d9c001a2.js" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js"></script>
+    <script src="https://d3js.org/d3.v4.js"></script>
+    <script src="https://d3js.org/d3-geo-projection.v2.min.js"></script>
+    <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/1.6.19/topojson.min.js"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+            background-color: whitesmoke;
+            font-family: 'Times New Roman', sans-serif;
+            font-weight: 300;
+        }
+        header{
+            display: flex;
+            justify-content: space-between;
+        }
+        input[type="radio" i]{
+            width: 0;
+            height: 0;
+            margin: 0;
+        }
+        h1 {
+            font-weight: 800;
+            color: #5a7388;
+            font-size: 24;
+            margin: 0;
+            padding-top: 0.25em;
+            padding-left: 1em;
+        }
+
+        #timer{
+            display: flex;
+            padding: 0.5em;
+            flex-direction: column;
+            justify-content: space-evenly;
+        }
+        #timer-buttons{
+            display: flex;
+            justify-content: space-evenly;
+        }
+        .fa-pause.active{
+            color: red;
+        }
+        .fa-play.active{
+            color: blue;
+        }
+
+        #more-info{
+            display: flex;
+            justify-content: space-evenly;
+        }
+        .header-button{
+          text-align: center;
+          text-decoration: none;
+          display: inline-block;
+          border: none;
+          padding: 1.5em;
+          flex-grow: 1;
+          background-color: lightgray;
+        }
+
+        h3{
+            margin: 0;
+        }
+        .header-button:hover{
+            background-color: darkslategray;
+        }
+        #about-div{
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1;
+            padding:  12px;
+            width: auto;
+            height: auto;
+            background-color: whitesmoke;
+            border: 1px solid black;
+        }
+        #filters-div{
+            display: none;
+            position: absolute;
+            right: 0;
+            background-color: white;
+            overflow: scroll;
+            height: 85vh;
+            margin: 2em;
+            z-index: 1;
+            border: 1px solid black;
+        }
+        #filter-table{
+            text-align: left;
+            background-color: whitesmoke;
+        }
+
+        #svgcontainer {
+            width: 100;
+            height: 95vh;
+            margin-left: auto;
+            margin-right: auto;
+            background-color: #ccdcec;
+        }
+        svg {
+            background-color: #ccdcec;
+        }
+
+    </style>
+</head>
+
+<body>
+    <header>
+        <div>
+            <h1>NZ Bird Sightings</h1>
+        </div>
+        <div id="timer">
+            <h3 id="time">2021-01-01 00:00 UTC</h3>
+            <div id="timer-buttons">
+                <label>
+                    <input type="radio" id="p0" name="playback-speed" value="0" checked>
+                    <i class="fa-solid fa-pause active"></i>
+                </label>
+                <label>
+                    <input type="radio" id="p1" name="playback-speed" value="1">
+                    <i class="fa-solid fa-play"></i>
+                </label>
+                <label>
+                    <input type="radio" id="p2" name="playback-speed" value="2">
+                    <i class="fa-solid fa-play"></i><i class="fa-solid fa-play"></i>
+                </label>
+                <label>
+                    <input type="radio" id="p4" name="playback-speed" value="4">
+                    <i class="fa-solid fa-play"></i><i class="fa-solid fa-play"></i><i class="fa-solid fa-play"></i>
+                </label> 
+            </div>       
+        </div>
+        <div id="more-info">
+            <div id="about">
+                <button class = 'header-button' onclick="showAbout()"><h3>About</h3></button>
+                <div id="about-div" style="display: none">
+                    <button onclick="showAbout()">x</button>
+                    <p>This was made as the final project for INFO 658 at Pratt Institute, towards the completion of an MS in Data Analytics and Vizualisation</p>
+                    <p>Author: Tk Cram</p>
+                    <p>Instructor: Chris Allen Sula</p>
+                    <p>Data: Cornell Ornothology Lab</p>
+                    <p>Tools Used: Python, Javascript, D3</p>
+                    <p>Special Thanks: Jennifer Cahalane [...]</p>
+                </div>
+            </div>
+            <div id="advanced">
+                <button class = 'header-button' onclick="showAdvanced()"><h3>Advanced</h3></button>
+                <div id='filters-div' style="display: none">
+                    <table id="filter-table">
+                        <tr>
+                            <th><button id='randomise'>Shuffle</button></th>
+                            <th></th>
+                            <th><button id='name-type'>Common Name</button></th>
+                            <th><button onclick="showAdvanced()">x</button></th>
+                        </tr>
+                        <tr>
+                            <td><input type='color' name='all-color' id='all-colour' value='#45b3e0'></td>
+                            <td><input type='checkbox' name='all-filter' id='all-filter' checked='true'></td>
+                            <th><label for='all-filter'>All Orders</label></th>
+                        </tr>
+                    </table>
+                </div>
+        </div>
+    </header>
+<main>
+    <!-- <div id="welcome">Click this <button id="start-button" onclick="begin()">button</button></div> -->
+    <div id="svgcontainer">
+        <div id="svganchor"></div>
+        <br>
+    </div>
+    
+    
+</main>
+
+<script type="text/javascript">
+
+//****VANILLA****
+
+//***DATA***
+//**ORDERS**
+let orderNames = ['Accipitriformes','Anseriformes','Apterygiformes','Bucerotiformes','Caprimulgiformes','Cariamiformes','Casuariiformes','Cathartiformes','Charadriiformes','Ciconiiformes','Coliiformes','Columbiformes','Coraciiformes','Cuculiformes','Eurypygiformes','Falconiformes','Galbuliformes','Galliformes','Gaviiformes','Gruiformes','Leptosomiformes','Mesitornithiformes','Musophagiformes','Opisthocomiformes','Otidiformes','Passeriformes','Pelecaniformes','Phaethontiformes','Phoenicopteriformes','Piciformes','Podicipediformes','Procellariiformes','Psittaciformes','Pterocliformes','Rheiformes','Sphenisciformes','Strigiformes','Struthioniformes','Suliformes','Tinamiformes','Trogoniformes'];
+
+let orderFilterList = [...orderNames]
+
+let orderCommonNames = ['Hawks, Eagles & Kites','Ducks','Kiwi','Hoopoes & Hornbills','Night Jars & Allies','Seriema','Cassowaries','New World Vultures','Waders','Storks','Mousebirds','Pigeons & Doves','Rollers & Allies','Cuckoos','Kago, Sunbittern','Falcons','Jacamars & Puffbirds','Pheasants','Loons','Rails','Cucukoo Roller','Mesites','Turacos','Hoatzin','Bustards','Passerines','Pelicans','Tropicbirds','Flamingos','Woodpeckers & Allies','Grebes','Shearwaters','Parrots','Sandgrouses','Rheas','Penguins','Owls','Ostriches','Boobies and Gannets','Tinamous','Trogons']
+
+//**COLOURS**
+let baseColour = "#45b3e0"
+let orderColours = {}
+let color = function(orderName){return orderColours[orderName]};
+
+//***PLAY/PAUSE***
+var paused = true;
+
+function pauser() {
+    return new Promise(resolve => {
+        let playbuttonclick = function (event) {
+            paused = false;
+            buttonActive()
+
+            //*RESTART ANIMATIONS*
+            let svg = d3.select("#svganchor")
+            svg.selectAll("circle")
+            .transition()
+            .duration(2000)
+            .style("fill-opacity", "0")
+            .remove()
+
+            resolve("resolved");
+        }
+
+        let playButtons = document.querySelectorAll('[name="playback-speed"]')
+        playButtons.forEach(button => {
+            if (button.value > 0){
+            button.addEventListener("click", playbuttonclick)}
+        })
+    })
+}
+
+document.getElementById("p0")
+.addEventListener("click", function () {
+    buttonActive()
+    paused = true;
+})
+
+function buttonActive (){
+    let playbackButtons = document.querySelectorAll('[name="playback-speed"] ~ i')
+    playbackButtons.forEach(button =>{
+        button.classList.remove("active")
+    });
+    let activeButtons = document.querySelectorAll('[name="playback-speed"]:checked ~ i')
+    activeButtons.forEach(button => {
+        button.classList.add("active")
+    });
+}
+
+//***ABOUT***
+let aboutDiv = document.getElementById('about-div')
+function showAbout(){
+    if (aboutDiv.style.display === "none") {
+        aboutDiv.style.display = "block";
+        advancedDiv.style.display = "none"
+
+    } else {
+        aboutDiv.style.display = "none";
+    }
+}
+
+//***LEGEND***
+let legend = document.getElementById('filter-table').tBodies[0];
+let advancedDiv = document.getElementById('filters-div')
+//**SHOW/HIDE**
+function showAdvanced(){
+    if (advancedDiv.style.display === "none") {
+        advancedDiv.style.display = "block";
+        aboutDiv.style.display = "none"
+    } else {
+        advancedDiv.style.display = "none";
+    }
+}
+
+document.addEventListener('mouseup', function(e) {
+    var container = document.getElementById('filters-div');
+    if (!container.contains(e.target)) {
+        container.style.display = 'none';
+    }
+});
+
+document.addEventListener('mouseup', function(e) {
+    var container = document.getElementById('about-div');
+    if (!container.contains(e.target)) {
+        container.style.display = 'none';
+    }
+});
+
+//**LEGEND CREATION**
+for (let i = 0; i < orderNames.length; i++){
+    let orderRow = document.createElement("tr");
+
+    //*FILTERING*
+    let orderFilter = document.createElement("td");
+    let filterButton = document.createElement("input");
+    filterButton.setAttribute('type','checkbox');
+    filterButton.setAttribute('name',orderNames[i]);
+    filterButton.setAttribute('value','filter');
+    filterButton.setAttribute('checked','true');
+    filterButton.setAttribute('id', orderNames[i]);
+    filterButton.addEventListener('change', function() {
+        if (filterButton.checked == false){
+            const index = orderFilterList.indexOf(orderNames[i]);
+            orderFilterList.splice(index, 1)
+        } else {
+            orderFilterList.push(orderNames[i]);
+        }
+    });
+    orderFilter.appendChild(filterButton);
+
+    //*NAMES*
+    let orderName = document.createElement("th");
+    let labelDiv = document.createElement("label");
+    let iconDiv = '<i class="fa-solid fa-arrow-up-right-from-square"></i>'
+    let nameLink = `https://en.wikipedia.org/wiki/${orderNames[i]}`
+    let nameText  = `<a href='${nameLink}' target='_blank'>${iconDiv}</a>`
+    labelDiv.setAttribute('for',orderNames[i])
+    labelDiv.setAttribute('class','order-name')
+    labelDiv.innerHTML = `${orderNames[i]} ${nameText}`
+    orderName.append(labelDiv)
+
+    //*COLOURS*
+    let orderColour = document.createElement("td");
+    let colourButton = document.createElement("input");
+    orderColours[orderNames[i]] = baseColour
+    colourButton.setAttribute('type','color');
+    colourButton.setAttribute('name',orderNames[i]);
+    colourButton.setAttribute('value',baseColour);
+    colourButton.addEventListener("change", function(){
+        orderColours[orderNames[i]] = colourButton.value;
+    });
+    orderColour.appendChild(colourButton);
+    
+    //*APPEND*
+    orderRow.appendChild(orderColour);
+    orderRow.appendChild(orderFilter);
+    orderRow.appendChild(orderName);
+    legend.appendChild(orderRow);
+};
+
+//**FILTER ALL**
+let allFilter = document.getElementById('all-filter')
+let filterButtons = document.querySelectorAll("input[type='checkbox']");
+allFilter.addEventListener("change", function() {
+    for (let i = 0; i < filterButtons.length; i++){
+        filterButtons[i].checked = allFilter.checked
+    }
+    if (!allFilter.checked) {
+        orderFilterList = []
+    } else {
+        orderFilterList = orderNames
+    }
+});
+
+//**COLOUR ALL**
+let allColour = document.getElementById('all-colour')
+let colourButtons = document.querySelectorAll("input[type='color']");
+allColour.addEventListener("change", function() {
+    for (let i = 0; i < colourButtons.length; i++){
+        colourButtons[i].value = allColour.value
+        orderColours[colourButtons[i]['name']] = allColour.value
+    }
+});
+
+let randomColourButton = document.getElementById('randomise')
+randomColourButton.addEventListener("click", function() {
+    for (let i = 0; i < colourButtons.length; i++){
+        let colour = Math.floor(Math.random()*16777215).toString(16);
+        while (colour.length < 6) {
+            colour = '0'+colour
+        }
+        let colourString = '#' + colour
+        colourButtons[i].value = colourString;
+        orderColours[colourButtons[i]['name']] = colourString;
+    }
+})
+
+let nameList = document.getElementsByClassName('order-name')
+let nameSwitchButton = document.getElementById('name-type')
+nameSwitchButton.addEventListener("click", function() {
+    for (let i = 0; i < nameList.length; i++){
+        if (nameSwitchButton.innerText === 'Common Name'){
+            nameList[i].innerText = orderCommonNames[i]
+        } else {
+            nameList[i].innerText = orderNames[i]
+        }
+    }
+    if (nameSwitchButton.innerText === 'Common Name'){
+        nameSwitchButton.innerText = 'Scientific Name'
+    } else {
+        nameSwitchButton.innerText = 'Common Name'
+    }
+})
+
+//****D3****
+//***MAP LAYER***
+//**MAP BUILDER**
+let body = document.getElementById('svgcontainer')
+
+let width = window.innerWidth;
+let height = body.offsetHeight;
+
+let projection = d3.geo.equirectangular()
+.center([174, -40])
+.translate([width / 2, height/2])
+.scale(2900)
+
+let path = d3.geo.path()
+.projection(projection);
+
+let svg = d3.select("#svganchor")
+.append("svg")
+.attr("width", width)
+.attr("height", height)
+.attr("id", "mapImage");
+
+//**MAP DATA**
+d3.json("mapmd.json", (json) => {
+    svg.selectAll("path")
+    .data(json.features)
+    .enter()
+    .append("path")
+    .attr("d", path)
+    .attr("stroke", "#1c321c")
+    .attr("stroke-width", "0.25")
+    .style("opacity", 1)
+    .attr("fill", (d, i) => {return '#e1eee1'})
+    .each((d, i, j) => {
+// Fix to move map behind the plotted points
+    let firstChild = j[i].parentNode.firstChild;
+    if (firstChild) {
+        j[i].parentNode.insertBefore(j[i], firstChild);
+        }
+    });
+});
+
+//***DATA LAYER***
+d3.json("nzBirdTest.json", async function(error, data){
+    let baseSpeed = 1000
+
+    //**POINTS**
+    for (let i=0; i<8760; i++){
+        if (paused == true) {
+            svg.selectAll("*")
+            .transition()
+            .duration(0)
+            await pauser();
+        } 
+        //*TIMING*
+        let speedMod = document.querySelector('[name="playback-speed"]:checked').value;
+        let speed = baseSpeed/parseInt(speedMod);
+
+        await new Promise(resolve => setTimeout(resolve, speed));
+        document.getElementById('time').innerText = `${Object.keys(data)[i]} UTC`
+
+        //*ADDING POINTS*
+        const birdsAtTime = Object.values(data)[i]
+        svg.selectAll("myCircles")
+        .data(() => birdsAtTime)
+        .enter()
+        .append("circle")
+        .filter((d) => {return orderFilterList.includes(d.Order)})
+        .attr("cx", (d) => {return projection([+d.Longitude, +d.Latitude])[0]})
+        .attr("cy", (d) => {return projection([+d.Longitude, +d.Latitude])[1]})
+        .attr("r", (d) => {return (d.Count+1)})
+        .style("fill", function(d){return color(d.Order)})
+        .attr("stroke-width", 0.1)
+        .attr("stroke", 'white')
+        .attr("opacity", 0)
+
+        //*ANIMATING POINTS*
+        .transition()
+        .ease(d3.easeLinear)
+        .duration((d) => {return d.Delay/60 * speed})
+        .style("opacity", "0")
+
+        .transition()
+        .ease(d3.easeLinear)
+        .duration((d) => {return speed/4})
+        .style("opacity", "0.75")
+
+        .transition()
+        .ease(d3.easeLinear)
+        .duration((d) => {return d.Duration/60 * speed})
+        .style("opacity", "0.75")
+
+        .transition()
+        .ease(d3.easeLinear)
+        .duration((d) => {return speed/4})
+        .style("opacity", "0")
+
+        .remove()
+    }
+});
+
+</script>
+</body>
+
+</html>
