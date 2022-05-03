@@ -48,9 +48,13 @@
         }
         .fa-pause.active{
             color: red;
+            border-bottom: 2px solid red;
+            padding-bottom: 2px;
         }
         .fa-play.active{
-            color: blue;
+            color: green;
+            border-bottom: 2px solid green;
+            padding-bottom: 2px;
         }
 
         #more-info{
@@ -64,14 +68,20 @@
           border: none;
           padding: 1.5em;
           flex-grow: 1;
-          background-color: lightgray;
+          /*background-color: lightgray;*/
+          background-color: transparent;
         }
 
         h3{
             margin: 0;
         }
+        #about .header-button {
+            border-right: 1px solid darkslategray;
+            border-left: 1px solid darkslategray;
+        }
         .header-button:hover{
             background-color: darkslategray;
+            color: white;
         }
         #about-div{
             position: absolute;
@@ -95,10 +105,11 @@
             margin: 2em;
             z-index: 1;
             border: 1px solid black;
+            background-color: whitesmoke;
+            padding: 0.5em;
         }
         #filter-table{
             text-align: left;
-            background-color: whitesmoke;
         }
 
         #svgcontainer {
@@ -161,7 +172,7 @@
                         <tr>
                             <th><button id='randomise'>Shuffle</button></th>
                             <th></th>
-                            <th><button id='name-type'>Common Name</button></th>
+                            <th><button id='name-type'>Scientific Name</button></th>
                             <th><button onclick="showAdvanced()">x</button></th>
                         </tr>
                         <tr>
@@ -377,16 +388,16 @@ let nameList = document.getElementsByClassName('order-name')
 let nameSwitchButton = document.getElementById('name-type')
 nameSwitchButton.addEventListener("click", function() {
     for (let i = 0; i < nameList.length; i++){
-        if (nameSwitchButton.innerText === 'Common Name'){
+        if (nameSwitchButton.innerText === 'Scientific Name'){
             nameList[i].innerText = orderCommonNames[i]
         } else {
             nameList[i].innerText = orderNames[i]
         }
     }
-    if (nameSwitchButton.innerText === 'Common Name'){
-        nameSwitchButton.innerText = 'Scientific Name'
-    } else {
+    if (nameSwitchButton.innerText === 'Scientific Name'){
         nameSwitchButton.innerText = 'Common Name'
+    } else {
+        nameSwitchButton.innerText = 'Scientific Name'
     }
 })
 
