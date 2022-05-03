@@ -46,15 +46,27 @@
             display: flex;
             justify-content: space-evenly;
         }
+
         .fa-pause.active{
             color: red;
-            border-bottom: 2px solid red;
             padding-bottom: 2px;
+            border-bottom: 2px solid red;
         }
         .fa-play.active{
             color: green;
-            border-bottom: 2px solid green;
             padding-bottom: 2px;
+            border-bottom: 2px solid green;
+        }
+
+        .pause-button:hover > i{
+            color: red;
+            padding-bottom: 2px;
+            border-bottom: 2px solid red;
+        }
+        .play-button:hover > i{
+            color: green;
+            padding-bottom: 2px;
+            border-bottom: 2px solid green;
         }
 
         #more-info{
@@ -134,19 +146,19 @@
         <div id="timer">
             <h3 id="time">2021-01-01 00:00 UTC</h3>
             <div id="timer-buttons">
-                <label>
+                <label class='pause-button'>
                     <input type="radio" id="p0" name="playback-speed" value="0" checked>
                     <i class="fa-solid fa-pause active"></i>
                 </label>
-                <label>
+                <label class='play-button'>
                     <input type="radio" id="p1" name="playback-speed" value="1">
                     <i class="fa-solid fa-play"></i>
                 </label>
-                <label>
+                <label class='play-button'>
                     <input type="radio" id="p2" name="playback-speed" value="2">
                     <i class="fa-solid fa-play"></i><i class="fa-solid fa-play"></i>
                 </label>
-                <label>
+                <label class='play-button'>
                     <input type="radio" id="p4" name="playback-speed" value="4">
                     <i class="fa-solid fa-play"></i><i class="fa-solid fa-play"></i><i class="fa-solid fa-play"></i>
                 </label> 
