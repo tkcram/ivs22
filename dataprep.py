@@ -5,13 +5,12 @@ tf = timezonefinder.TimezoneFinder()
 birdJson = {}
 timeCodes = {}
 birdOrders = []
-errors = {'keyError':[], 'valueError':[]}
+errors = {'keyError':[], 'valueError':[], 'indexError':[]}
 progress = 0
 
 start_date = datetime.date(2021, 1, 1) 
 end_date = datetime.date(2021, 1, 31)
 delta = end_date - start_date
-
 
 for date in range(delta.days + 1):
 	for hour in range(24):
@@ -38,20 +37,21 @@ with open('nzBirdData.txt','r',encoding='utf-8-sig') as testFile:
 				lat = float(row['LATITUDE'])
 				lng = float(row['LONGITUDE'])
 
-				obvsDate = row['OBSERVATION DATE']
-				obsvTime = row['TIME OBSERVATIONS STARTED']
+				obsDate = row['OBSERVATION DATE']
+				obsTime = row['TIME OBSERVATIONS STARTED']
 
-				if row['STATE CODE'] not in timeCodes:
-					timezone_str = tf.certain_timezone_at(lat=lat, lng=lng)
-					timezone_add = pytz.timezone(timezone_str)
-					timeCodes[row['STATE CODE']] = timezone_add
+				# if row['STATE CODE'] not in timeCodes:
+				# 	timezone_str = tf.certain_timezone_at(lat=lat, lng=lng)
+				# 	timezone_add = pytz.timezone(timezone_str)
+				# 	timeCodes[row['STATE CODE']] = timezone_add
 
-				timezone = timeCodes[row['STATE CODE']]
-				obsvLOC = datetime.datetime.strptime(f'{obvsDate} {obsvTime}','%Y-%m-%d %H:%M:%S')
-				obsvUTC = timezone.localize(obsvLOC).astimezone(pytz.UTC)
+				# timezone = timeCodes[row['STATE CODE']]
+				# obsLOC = datetime.datetime.strptime(f'{obvsDate} {obsTime}','%Y-%m-%d %H:%M:%S')
+				# obsUTC = timezone.localize(obsLOC).astimezone(pytz.UTC)
 
-				timeFormat = re.split(":", str(obsvUTC))
-				obsvFormat = timeFormat[0]+':00'
+				obsUTC = f'{obsDate} {obsTime}'
+				timeFormat = re.split(":", str(obsUTC))
+				obsFormat = timeFormat[0]+':00'
 
 				if row['OBSERVATION COUNT'] != 'X':
 					birdData = {'Species': row['SCIENTIFIC NAME'],
@@ -62,21 +62,36 @@ with open('nzBirdData.txt','r',encoding='utf-8-sig') as testFile:
 								'Duration': row['DURATION MINUTES'],
 								'Delay': timeFormat[1]
 								}
-					birdJson[obsvFormat].append(birdData)
-					if row['TAXONOMIC ORDER'] not in birdOrders:
-						birdOrders.append(row['TAXONOMIC ORDER'])
+
+					birdJson[obsFormat].append(birdData)
+					# if row['TAXONOMIC ORDER'] not in birdOrders:
+					# 	birdOrders.append(row['TAXONOMIC ORDER'])
+
 			except KeyError as e:
 				errors['keyError'].append(str(e))
 				pass
 			except ValueError as e:
 				errors['valueError'].append(str(e))
 				pass
+			except IndexError as e:
+				errors['indexError'].append(str(e))
+				pass
 
-print(birdOrders)
+# with open('nzBirdTest.json','r',encoding='utf-8-sig') as nzFile:
+# 	with open('ausBirdTest.json','r',encoding='utf-8-sig') as ausFile:
+# 		nzData = json.load(nzFile)
+# 		ausData = json.load(ausFile)
+
+# 		for timeStamp in nzData:
+# 			nzData[timeStamp].extend(ausData[timeStamp])
+
+		# with open("anzacBirdTest.json",'w') as out:
+		# 	json.dump(nzData,out,indent=2)
 
 with open("nzBirdErrors.json",'w') as out:
 	json.dump(errors,out,indent=2)
 
 with open("nzBirdTest.json",'w') as out:
 	json.dump(birdJson,out,indent=2)
+
 

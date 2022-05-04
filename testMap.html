@@ -36,6 +36,10 @@
             padding-left: 1em;
         }
 
+        #date-field{
+            display: flex;
+            justify-content: space-between;
+        }
         #timer{
             display: flex;
             padding: 0.5em;
@@ -113,8 +117,9 @@
             right: 0;
             background-color: white;
             overflow: scroll;
-            height: 85vh;
-            margin: 2em;
+            height: 75vh;
+            margin-right: 5vw;
+            margin-top: 3vh;
             z-index: 1;
             border: 1px solid black;
             background-color: whitesmoke;
@@ -122,6 +127,13 @@
         }
         #filter-table{
             text-align: left;
+        }
+        th{
+            height: 2em;
+            position: sticky;
+        }
+        #filter-table:first-child{
+            text-align: center;
         }
         .order-filter{
             display: flex;
@@ -139,7 +151,7 @@
             background-color: #ccdcec;
         }
         svg {
-            background-color: #ccdcec;
+            background-color: #74bac9;
         }
 
     </style>
@@ -151,7 +163,10 @@
             <h1>NZ Bird Sightings</h1>
         </div>
         <div id="timer">
-            <h3 id="time">2021-01-01 00:00 UTC</h3>
+            <div id="date-field">
+                <input id="date-change" type="date" min="2021-01-01" max="2021-01-31" value="2021-01-01"></input>
+                <h3 id="time">00:00 NZT</h3>
+            </div>
             <div id="timer-buttons">
                 <label class='pause-button'>
                     <input type="radio" id="p0" name="playback-speed" value="0" checked>
@@ -189,15 +204,15 @@
                 <div id='filters-div' style="display: none">
                     <table id="filter-table">
                         <tr>
-                            <th><button id='randomise'>Shuffle</button></th>
+                            <th><button id='randomise'>Shuffle <i class="fa-solid fa-shuffle"></i></button></th>
                             <th></th>
-                            <th><button id='name-type'>Scientific Name</button></th>
+                            <th><button class="filter-names" id="sci-names" onclick="sciNames()">Scientific</button><button class="filter-names" id="com-names" disabled onclick="comNames()">Common</button></th>
                             <th><button onclick="showAdvanced()">x</button></th>
                         </tr>
                         <tr>
-                            <td><input type='color' name='all-color' id='all-colour' value='#45b3e0'></td>
+                            <td><input type='color' name='all-color' id='all-colour' value='#234d20'></td>
                             <td><input type='checkbox' name='all-filter' id='all-filter' checked='true'></td>
-                            <th><label for='all-filter'>All Orders</label></th>
+                            <td><label for='all-filter'>All Orders</label></th>
                         </tr>
                     </table>
                 </div>
@@ -223,7 +238,7 @@ let orderFilterList = [...orderNames]
 let orderCommonNames = ['Hawks, Eagles & Kites','Ducks','Kiwi','Hoopoes & Hornbills','Night Jars & Allies','Seriema','Cassowaries','New World Vultures','Waders','Storks','Mousebirds','Pigeons & Doves','Rollers & Allies','Cuckoos','Kago, Sunbittern','Falcons','Jacamars & Puffbirds','Pheasants','Loons','Rails','Cucukoo Roller','Mesites','Turacos','Hoatzin','Bustards','Passerines','Pelicans','Tropicbirds','Flamingos','Woodpeckers & Allies','Grebes','Shearwaters','Parrots','Sandgrouses','Rheas','Penguins','Owls','Ostriches','Boobies and Gannets','Tinamous','Trogons']
 
 //**COLOURS**
-let baseColour = "#45b3e0"
+let baseColour = "#234d20"
 let orderColours = {}
 let color = function(orderName){return orderColours[orderName]};
 
@@ -334,7 +349,7 @@ for (let i = 0; i < orderNames.length; i++){
     orderFilter.appendChild(filterButton);
 
     //*NAMES*
-    let orderName = document.createElement("th");
+    let orderName = document.createElement("td");
     let labelDiv = document.createElement("label");
     let iconDiv = '<i class="fa-solid fa-arrow-up-right-from-square"></i>'
     let nameLink = `https://en.wikipedia.org/wiki/${orderNames[i]}`
@@ -351,7 +366,7 @@ for (let i = 0; i < orderNames.length; i++){
     colourButton.setAttribute('type','color');
     colourButton.setAttribute('name',orderNames[i]);
     colourButton.setAttribute('value',baseColour);
-    colourButton.addEventListener("change", function(){
+    colourButton.addEventListener("input", function(){
         orderColours[orderNames[i]] = colourButton.value;
     });
     orderColour.appendChild(colourButton);
@@ -380,7 +395,7 @@ allFilter.addEventListener("change", function() {
 //**COLOUR ALL**
 let allColour = document.getElementById('all-colour')
 let colourButtons = document.querySelectorAll("input[type='color']");
-allColour.addEventListener("change", function() {
+allColour.addEventListener("input", function() {
     for (let i = 0; i < colourButtons.length; i++){
         colourButtons[i].value = allColour.value
         orderColours[colourButtons[i]['name']] = allColour.value
@@ -401,22 +416,34 @@ randomColourButton.addEventListener("click", function() {
 })
 
 let nameList = document.getElementsByClassName('order-name')
-let nameSwitchButton = document.getElementById('name-type')
-nameSwitchButton.addEventListener("click", function() {
-    console.log(nameList)
+function sciNames(){
+    document.getElementById('sci-names').disabled = true;
+    document.getElementById('com-names').disabled = false;
     for (let i = 0; i < nameList.length; i++){
-        if (nameSwitchButton.innerText === 'Scientific Name'){
-            nameList[i].innerText = orderCommonNames[i]
-        } else {
-            nameList[i].innerText = orderNames[i]
-        }
+        nameList[i].innerText = orderNames[i]
     }
-    if (nameSwitchButton.innerText === 'Scientific Name'){
-        nameSwitchButton.innerText = 'Common Name'
-    } else {
-        nameSwitchButton.innerText = 'Scientific Name'
+}
+function comNames(){
+    document.getElementById('com-names').disabled = true;
+    document.getElementById('sci-names').disabled = false;
+    for (let i = 0; i < nameList.length; i++){
+        nameList[i].innerText = orderCommonNames[i]
     }
-})
+}
+// nameSwitchButton.addEventListener("click", function() {
+//     for (let i = 0; i < nameList.length; i++){
+//         if (nameSwitchButton.innerText === 'Scientific Name'){
+//             nameList[i].innerText = orderCommonNames[i]
+//         } else {
+//             nameList[i].innerText = orderNames[i]
+//         }
+//     }
+//     if (nameSwitchButton.innerText === 'Scientific Name'){
+//         nameSwitchButton.innerText = 'Common Name'
+//     } else {
+//         nameSwitchButton.innerText = 'Scientific Name'
+//     }
+// })
 
 //****D3****
 //***MAP LAYER***
@@ -427,9 +454,9 @@ let width = window.innerWidth;
 let height = body.offsetHeight;
 
 let projection = d3.geo.equirectangular()
-.center([150, -30])
+.center([175, -41])
 .translate([width / 2, height/2])
-.scale(1000)
+.scale(3000)
 
 let path = d3.geo.path()
 .projection(projection);
@@ -466,6 +493,15 @@ d3.json("nzBirdTest.json", async function(error, data){
 
     //**POINTS**
     for (let i=0; i<8760; i++){
+
+        dateChange = document.getElementById("date-change")
+        keyData = Object.keys(data)[i].split(" ")
+        dateChange.value = keyData[0]
+        dateChange.addEventListener("input", function() {
+            i = Object.keys(data).indexOf(`${dateChange.value} ${keyData[1]}`)
+        })
+        document.getElementById('time').innerText = `${keyData[1]} NZT`
+
         if (paused == true) {
             svg.selectAll("*")
             .transition()
@@ -477,8 +513,7 @@ d3.json("nzBirdTest.json", async function(error, data){
         let speed = baseSpeed/parseInt(speedMod);
 
         await new Promise(resolve => setTimeout(resolve, speed));
-        document.getElementById('time').innerText = `${Object.keys(data)[i]} UTC`
-
+        
         //*ADDING POINTS*
         const birdsAtTime = Object.values(data)[i]
         svg.selectAll("myCircles")
@@ -516,6 +551,10 @@ d3.json("nzBirdTest.json", async function(error, data){
         .style("opacity", "0")
 
         .remove()
+
+        if (Object.keys(data)[i] == "2021-01-31 23:00"){
+            break
+        }
     }
 });
 
