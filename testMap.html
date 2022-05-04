@@ -132,7 +132,7 @@
             height: 2em;
             position: sticky;
         }
-        #filter-table:first-child{
+        #filter-table td:first-child{
             text-align: center;
         }
         .order-filter{
@@ -204,9 +204,11 @@
                 <div id='filters-div' style="display: none">
                     <table id="filter-table">
                         <tr>
-                            <th><button id='randomise'>Shuffle <i class="fa-solid fa-shuffle"></i></button></th>
+                            <th><button id='randomise'>Colour <i class="fa-solid fa-shuffle"></i></button></th>
                             <th></th>
-                            <th><button class="filter-names" id="sci-names" onclick="sciNames()">Scientific</button><button class="filter-names" id="com-names" disabled onclick="comNames()">Common</button></th>
+                            <th>
+                                <button class="filter-names" id="sci-names" disabled onclick="sciNames()">Scientific</button>
+                                <button class="filter-names" id="com-names" onclick="comNames()">Common</button></th>
                             <th><button onclick="showAdvanced()">x</button></th>
                         </tr>
                         <tr>
@@ -236,6 +238,8 @@ let orderNames = ['Accipitriformes','Anseriformes','Apterygiformes','Bucerotifor
 let orderFilterList = [...orderNames]
 
 let orderCommonNames = ['Hawks, Eagles & Kites','Ducks','Kiwi','Hoopoes & Hornbills','Night Jars & Allies','Seriema','Cassowaries','New World Vultures','Waders','Storks','Mousebirds','Pigeons & Doves','Rollers & Allies','Cuckoos','Kago, Sunbittern','Falcons','Jacamars & Puffbirds','Pheasants','Loons','Rails','Cucukoo Roller','Mesites','Turacos','Hoatzin','Bustards','Passerines','Pelicans','Tropicbirds','Flamingos','Woodpeckers & Allies','Grebes','Shearwaters','Parrots','Sandgrouses','Rheas','Penguins','Owls','Ostriches','Boobies and Gannets','Tinamous','Trogons']
+
+let nzOrderNames = ['Columbiformes', 'Suliformes', 'Passeriformes', 'Anseriformes', 'Charadriiformes', 'Galliformes', 'Gruiformes', 'Procellariiformes', 'Psittaciformes', 'Coraciiformes', 'Apterygiformes', 'Sphenisciformes', 'Strigiformes', 'Podicipediformes', 'Pelecaniformes', 'Cuculiformes', 'Accipitriformes', 'Falconiformes', '', 'Casuariiformes']
 
 //**COLOURS**
 let baseColour = "#234d20"
@@ -376,6 +380,14 @@ for (let i = 0; i < orderNames.length; i++){
     orderRow.appendChild(orderFilter);
     orderRow.appendChild(orderName);
     legend.appendChild(orderRow);
+
+    if (!nzOrderNames.includes(orderNames[i])){
+        orderRow.setAttribute('style','opacity: 0.5');
+        colourButton.disabled = true
+        colourButton.value = "red"
+        filterButton.checked = false
+        filterButton.disabled = true
+    }
 };
 
 //**FILTER ALL**
@@ -383,12 +395,13 @@ let allFilter = document.getElementById('all-filter')
 let filterButtons = document.querySelectorAll("input[type='checkbox']");
 allFilter.addEventListener("change", function() {
     for (let i = 0; i < filterButtons.length; i++){
-        filterButtons[i].checked = allFilter.checked
+        if (nzOrderNames.includes(orderNames[i-1]))
+            filterButtons[i].checked = allFilter.checked
     }
     if (!allFilter.checked) {
         orderFilterList = []
     } else {
-        orderFilterList = orderNames
+        orderFilterList = nzOrderNames
     }
 });
 
@@ -397,21 +410,25 @@ let allColour = document.getElementById('all-colour')
 let colourButtons = document.querySelectorAll("input[type='color']");
 allColour.addEventListener("input", function() {
     for (let i = 0; i < colourButtons.length; i++){
-        colourButtons[i].value = allColour.value
-        orderColours[colourButtons[i]['name']] = allColour.value
+        if (nzOrderNames.includes(orderNames[i-1])){
+            colourButtons[i].value = allColour.value
+            orderColours[colourButtons[i]['name']] = allColour.value
+        }
     }
 });
 
 let randomColourButton = document.getElementById('randomise')
 randomColourButton.addEventListener("click", function() {
     for (let i = 0; i < colourButtons.length; i++){
-        let colour = Math.floor(Math.random()*16777215).toString(16);
-        while (colour.length < 6) {
-            colour = '0'+colour
+        if (nzOrderNames.includes(orderNames[i-1])){
+            let colour = Math.floor(Math.random()*16777215).toString(16);
+            while (colour.length < 6) {
+                colour = '0'+colour
+            }
+            let colourString = '#' + colour
+            colourButtons[i].value = colourString;
+            orderColours[colourButtons[i]['name']] = colourString;
         }
-        let colourString = '#' + colour
-        colourButtons[i].value = colourString;
-        orderColours[colourButtons[i]['name']] = colourString;
     }
 })
 
