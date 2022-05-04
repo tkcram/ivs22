@@ -4,6 +4,7 @@ tf = timezonefinder.TimezoneFinder()
 
 birdJson = {}
 timeCodes = {}
+birdOrders = []
 errors = {'keyError':[], 'valueError':[]}
 progress = 0
 
@@ -62,12 +63,16 @@ with open('nzBirdData.txt','r',encoding='utf-8-sig') as testFile:
 								'Delay': timeFormat[1]
 								}
 					birdJson[obsvFormat].append(birdData)
+					if row['TAXONOMIC ORDER'] not in birdOrders:
+						birdOrders.append(row['TAXONOMIC ORDER'])
 			except KeyError as e:
 				errors['keyError'].append(str(e))
 				pass
 			except ValueError as e:
 				errors['valueError'].append(str(e))
 				pass
+
+print(birdOrders)
 
 with open("nzBirdErrors.json",'w') as out:
 	json.dump(errors,out,indent=2)

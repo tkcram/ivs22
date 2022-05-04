@@ -123,6 +123,13 @@
         #filter-table{
             text-align: left;
         }
+        .order-filter{
+            display: flex;
+        }
+        .order-name{
+            margin: 0;
+            margin-right: 5px;
+        }
 
         #svgcontainer {
             width: 100;
@@ -200,10 +207,7 @@
     <!-- <div id="welcome">Click this <button id="start-button" onclick="begin()">button</button></div> -->
     <div id="svgcontainer">
         <div id="svganchor"></div>
-        <br>
     </div>
-    
-    
 </main>
 
 <script type="text/javascript">
@@ -336,8 +340,8 @@ for (let i = 0; i < orderNames.length; i++){
     let nameLink = `https://en.wikipedia.org/wiki/${orderNames[i]}`
     let nameText  = `<a href='${nameLink}' target='_blank'>${iconDiv}</a>`
     labelDiv.setAttribute('for',orderNames[i])
-    labelDiv.setAttribute('class','order-name')
-    labelDiv.innerHTML = `${orderNames[i]} ${nameText}`
+    labelDiv.setAttribute('class','order-filter')
+    labelDiv.innerHTML = `<p class="order-name">${orderNames[i]}</p> ${nameText}`
     orderName.append(labelDiv)
 
     //*COLOURS*
@@ -399,6 +403,7 @@ randomColourButton.addEventListener("click", function() {
 let nameList = document.getElementsByClassName('order-name')
 let nameSwitchButton = document.getElementById('name-type')
 nameSwitchButton.addEventListener("click", function() {
+    console.log(nameList)
     for (let i = 0; i < nameList.length; i++){
         if (nameSwitchButton.innerText === 'Scientific Name'){
             nameList[i].innerText = orderCommonNames[i]
@@ -422,9 +427,9 @@ let width = window.innerWidth;
 let height = body.offsetHeight;
 
 let projection = d3.geo.equirectangular()
-.center([174, -40])
+.center([150, -30])
 .translate([width / 2, height/2])
-.scale(2900)
+.scale(1000)
 
 let path = d3.geo.path()
 .projection(projection);
