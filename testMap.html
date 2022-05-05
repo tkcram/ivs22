@@ -504,6 +504,18 @@ d3.json("mapmd.json", (json) => {
     });
 });
 
+let tooltip = d3.select("body")
+        .append("div")
+        .style("position", "absolute")
+        .style("text-align", "center")
+        .style("padding", "15px")
+        .style("font", "12px sans-serif")
+        .style("background", "#03bafc")
+        .style("border", "0px")
+        .style("border-radius", "8px")
+        .style("z-index", "10")
+        .style("visibility", "hidden");
+
 //***DATA LAYER***
 d3.json("nzBirdTest.json", async function(error, data){
     let baseSpeed = 1000
@@ -535,16 +547,38 @@ d3.json("nzBirdTest.json", async function(error, data){
         const birdsAtTime = Object.values(data)[i]
         svg.selectAll("myCircles")
         .data(() => birdsAtTime)
-        .enter()
+        .enter().append("a")
+        .attr("xlink:href", function(d) {
+            let birdString = d.ScientificName.replace(' ','_')
+            return "https://en.wikipedia.org/wiki/"+birdString})
+        .attr('target','_blank')
         .append("circle")
         .filter((d) => {return orderFilterList.includes(d.Order)})
         .attr("cx", (d) => {return projection([+d.Longitude, +d.Latitude])[0]})
         .attr("cy", (d) => {return projection([+d.Longitude, +d.Latitude])[1]})
-        .attr("r", (d) => {return (d.Count+1)})
+        .attr("r", (d) => {console.log (d.Count, Math.log(d.Count)); return Math.log(d.Count)+1})
         .style("fill", function(d){return color(d.Order)})
         .attr("stroke-width", 0.1)
         .attr("stroke", 'white')
         .attr("opacity", 0)
+        .on("mouseover", (d) => {
+            let trueCount = Math.E ^ d.Count
+            tooltip.text(`Species: ${d.CommonName} [${d.ScientificName}]
+                        Order: ${d.Order}
+                        Count: ${trueCount}
+                        Location: ${d.Latitude}, ${d.Longitude}
+                        Observation length: ${d.Duration} minutes`);
+            return tooltip.style("top",(d3.event.pageY-10)+"px")
+                .style("left",(d3.event.pageX+10)+"px")
+                .style("visibility", "visible")
+        })
+        .on("mouseout",() => {
+            return tooltip.style("visibility", "hidden");
+        })
+
+        // .on('click', function(d) {
+            
+        // })
 
         //*ANIMATING POINTS*
         .transition()
@@ -570,7 +604,10 @@ d3.json("nzBirdTest.json", async function(error, data){
         .remove()
 
         if (Object.keys(data)[i] == "2021-01-31 23:00"){
-            break
+            i = -1;
+            document.getElementById('p0').checked = true
+            buttonActive()
+            paused = true;
         }
     }
 });
