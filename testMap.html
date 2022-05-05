@@ -547,34 +547,35 @@ d3.json("nzBirdTest.json", async function(error, data){
         const birdsAtTime = Object.values(data)[i]
         svg.selectAll("myCircles")
         .data(() => birdsAtTime)
-        .enter().append("a")
-        .attr("xlink:href", function(d) {
-            let birdString = d.ScientificName.replace(' ','_')
-            return "https://en.wikipedia.org/wiki/"+birdString})
-        .attr('target','_blank')
+        .enter()
+        .append("a")
+            .attr("xlink:href", function(d) {
+                let birdString = d.ScientificName.replace(' ','_')
+                return "https://en.wikipedia.org/wiki/"+birdString})
+            .attr('target','_blank')
         .append("circle")
-        .filter((d) => {return orderFilterList.includes(d.Order)})
-        .attr("cx", (d) => {return projection([+d.Longitude, +d.Latitude])[0]})
-        .attr("cy", (d) => {return projection([+d.Longitude, +d.Latitude])[1]})
-        .attr("r", (d) => {console.log (d.Count, Math.log(d.Count)); return Math.log(d.Count)+1})
-        .style("fill", function(d){return color(d.Order)})
-        .attr("stroke-width", 0.1)
-        .attr("stroke", 'white')
-        .attr("opacity", 0)
-        .on("mouseover", (d) => {
-            let trueCount = Math.E ^ d.Count
-            tooltip.text(`Species: ${d.CommonName} [${d.ScientificName}]
-                        Order: ${d.Order}
-                        Count: ${trueCount}
-                        Location: ${d.Latitude}, ${d.Longitude}
-                        Observation length: ${d.Duration} minutes`);
-            return tooltip.style("top",(d3.event.pageY-10)+"px")
-                .style("left",(d3.event.pageX+10)+"px")
-                .style("visibility", "visible")
-        })
-        .on("mouseout",() => {
-            return tooltip.style("visibility", "hidden");
-        })
+            .filter((d) => {return orderFilterList.includes(d.Order)})
+            .attr("cx", (d) => {return projection([+d.Longitude, +d.Latitude])[0]})
+            .attr("cy", (d) => {return projection([+d.Longitude, +d.Latitude])[1]})
+            .attr("r", (d) => {return Math.log(d.Count)+1})
+            .style("fill", function(d){return color(d.Order)})
+            .attr("stroke-width", 0.1)
+            .attr("stroke", 'white')
+            .attr("opacity", 0)
+            .on("mouseover", (d) => {
+                let trueCount = Math.E ^ d.Count
+                tooltip.text(`Species: ${d.CommonName} [${d.ScientificName}]
+                            Order: ${d.Order}
+                            Count: ${trueCount}
+                            Location: ${d.Latitude}, ${d.Longitude}
+                            Observation length: ${d.Duration} minutes`);
+                return tooltip.style("top",(d3.event.pageY-10)+"px")
+                    .style("left",(d3.event.pageX+10)+"px")
+                    .style("visibility", "visible")
+            })
+            .on("mouseout",() => {
+                return tooltip.style("visibility", "hidden");
+            })
 
         // .on('click', function(d) {
             

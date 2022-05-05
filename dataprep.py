@@ -37,6 +37,8 @@ with open('nzBirdData.txt','r',encoding='utf-8-sig') as testFile:
 				lat = float(row['LATITUDE'])
 				lng = float(row['LONGITUDE'])
 
+				order = taxonOrder[row['TAXONOMIC ORDER']]
+
 				obsDate = row['OBSERVATION DATE']
 				obsTime = row['TIME OBSERVATIONS STARTED']
 
@@ -54,9 +56,10 @@ with open('nzBirdData.txt','r',encoding='utf-8-sig') as testFile:
 				obsFormat = timeFormat[0]+':00'
 
 				if row['OBSERVATION COUNT'] != 'X':
-					birdData = {'Species': row['SCIENTIFIC NAME'],
-								'Order': taxonOrder[row['TAXONOMIC ORDER']],
-								'Count': math.log(int(row['OBSERVATION COUNT'])),
+					birdData = {'ScientificName': row['SCIENTIFIC NAME'],
+								'CommonName': row['COMMON NAME'],
+								'Order': order,
+								'Count': int(row['OBSERVATION COUNT']),
 								'Latitude': lat,
 								'Longitude': lng,
 								'Duration': row['DURATION MINUTES'],
@@ -64,8 +67,9 @@ with open('nzBirdData.txt','r',encoding='utf-8-sig') as testFile:
 								}
 
 					birdJson[obsFormat].append(birdData)
-					# if row['TAXONOMIC ORDER'] not in birdOrders:
-					# 	birdOrders.append(row['TAXONOMIC ORDER'])
+
+					if order not in birdOrders:
+						birdOrders.append(order)
 
 			except KeyError as e:
 				errors['keyError'].append(str(e))
@@ -77,6 +81,7 @@ with open('nzBirdData.txt','r',encoding='utf-8-sig') as testFile:
 				errors['indexError'].append(str(e))
 				pass
 
+# print(birdOrders)
 # with open('nzBirdTest.json','r',encoding='utf-8-sig') as nzFile:
 # 	with open('ausBirdTest.json','r',encoding='utf-8-sig') as ausFile:
 # 		nzData = json.load(nzFile)
