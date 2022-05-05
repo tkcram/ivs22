@@ -35,16 +35,13 @@
             padding-top: 0.25em;
             padding-left: 1em;
         }
-
-        #date-field{
-            display: flex;
-            justify-content: space-between;
-        }
         #timer{
             display: flex;
-            padding: 0.5em;
             flex-direction: column;
             justify-content: space-evenly;
+        }
+        #date-change{
+            width: auto;
         }
         #timer-buttons{
             display: flex;
@@ -96,7 +93,7 @@
             border-left: 1px solid darkslategray;
         }
         .header-button:hover{
-            background-color: darkslategray;
+            background-color: #5a7388;
             color: white;
         }
         #about-div{
@@ -135,6 +132,11 @@
         #filter-table td:first-child{
             text-align: center;
         }
+        .filter-buttons{
+            font-size: 0;
+        }
+        .filter-names{
+        }
         .order-filter{
             display: flex;
         }
@@ -163,10 +165,7 @@
             <h1>NZ Bird Sightings</h1>
         </div>
         <div id="timer">
-            <div id="date-field">
-                <input id="date-change" type="date" min="2021-01-01" max="2021-01-31" value="2021-01-01"></input>
-                <h3 id="time">00:00 NZT</h3>
-            </div>
+            <input id="date-change" type="datetime-local" min="2021-01-01T00:00" max="2021-01-31T00:00" value="2021-01-01T00:00"></input>
             <div id="timer-buttons">
                 <label class='pause-button'>
                     <input type="radio" id="p0" name="playback-speed" value="0" checked>
@@ -177,11 +176,11 @@
                     <i class="fa-solid fa-play"></i>
                 </label>
                 <label class='play-button'>
-                    <input type="radio" id="p2" name="playback-speed" value="2">
+                    <input type="radio" id="p2" name="playback-speed" value="6">
                     <i class="fa-solid fa-play"></i><i class="fa-solid fa-play"></i>
                 </label>
                 <label class='play-button'>
-                    <input type="radio" id="p4" name="playback-speed" value="4">
+                    <input type="radio" id="p4" name="playback-speed" value="24">
                     <i class="fa-solid fa-play"></i><i class="fa-solid fa-play"></i><i class="fa-solid fa-play"></i>
                 </label> 
             </div>       
@@ -206,7 +205,7 @@
                         <tr>
                             <th><button id='randomise'>Colour <i class="fa-solid fa-shuffle"></i></button></th>
                             <th></th>
-                            <th>
+                            <th class="filter-buttons">
                                 <button class="filter-names" id="sci-names" disabled onclick="sciNames()">Scientific</button>
                                 <button class="filter-names" id="com-names" onclick="comNames()">Common</button></th>
                             <th><button onclick="showAdvanced()">x</button></th>
@@ -473,7 +472,7 @@ let height = body.offsetHeight;
 let projection = d3.geo.equirectangular()
 .center([175, -41])
 .translate([width / 2, height/2])
-.scale(3000)
+.scale(height*4)
 
 let path = d3.geo.path()
 .projection(projection);
@@ -507,10 +506,10 @@ d3.json("mapmd.json", (json) => {
 let tooltip = d3.select("body")
         .append("div")
         .style("position", "absolute")
-        .style("text-align", "center")
         .style("padding", "15px")
         .style("font", "12px sans-serif")
-        .style("background", "#03bafc")
+        .style("background", "whitesmoke")
+        .style("color","#5a7388")
         .style("border", "0px")
         .style("border-radius", "8px")
         .style("z-index", "10")
@@ -524,12 +523,20 @@ d3.json("nzBirdTest.json", async function(error, data){
     for (let i=0; i<8760; i++){
 
         dateChange = document.getElementById("date-change")
-        keyData = Object.keys(data)[i].split(" ")
-        dateChange.value = keyData[0]
-        dateChange.addEventListener("input", function() {
-            i = Object.keys(data).indexOf(`${dateChange.value} ${keyData[1]}`)
+        keyData = Object.keys(data)[i].replace(' ','T')
+        dateChange.value = keyData
+        dateChange.addEventListener("input", function(input) {
+            console.log(dateChange.value)
+            if (dateChange.value == ""){
+                dateChange.value = "2021-01-01T00:00"
+            }
+
+            i = Object.keys(data)
+            .indexOf(dateChange.value
+            .replace('T',' ')
+            .replace(/:[0-9]*/g,':00'))
+
         })
-        document.getElementById('time').innerText = `${keyData[1]} NZT`
 
         if (paused == true) {
             svg.selectAll("*")
@@ -550,8 +557,8 @@ d3.json("nzBirdTest.json", async function(error, data){
         .enter()
         .append("a")
             .attr("xlink:href", function(d) {
-                let birdString = d.ScientificName.replace(' ','_')
-                return "https://en.wikipedia.org/wiki/"+birdString})
+                let birdString = d.CommonName.replace(' ','-')
+                return "https://nzbirdsonline.org.nz/species/"+birdString})
             .attr('target','_blank')
         .append("circle")
             .filter((d) => {return orderFilterList.includes(d.Order)})
@@ -564,10 +571,10 @@ d3.json("nzBirdTest.json", async function(error, data){
             .attr("opacity", 0)
             .on("mouseover", (d) => {
                 let trueCount = Math.E ^ d.Count
-                tooltip.text(`Species: ${d.CommonName} [${d.ScientificName}]
-                            Order: ${d.Order}
-                            Count: ${trueCount}
-                            Location: ${d.Latitude}, ${d.Longitude}
+                tooltip.html(`<b>${d.CommonName}</b> (<em>${d.ScientificName}</em>) </br>
+                            Order: ${d.Order} </br>
+                            Count: ${trueCount} </br>
+                            Location: ${d.Latitude}, ${d.Longitude} </br>
                             Observation length: ${d.Duration} minutes`);
                 return tooltip.style("top",(d3.event.pageY-10)+"px")
                     .style("left",(d3.event.pageX+10)+"px")
@@ -577,14 +584,10 @@ d3.json("nzBirdTest.json", async function(error, data){
                 return tooltip.style("visibility", "hidden");
             })
 
-        // .on('click', function(d) {
-            
-        // })
-
         //*ANIMATING POINTS*
         .transition()
         .ease(d3.easeLinear)
-        .duration((d) => {return d.Delay/60 * speed})
+        .duration((d) => {return (d.Delay/60) *speed})
         .style("opacity", "0")
 
         .transition()
@@ -594,7 +597,7 @@ d3.json("nzBirdTest.json", async function(error, data){
 
         .transition()
         .ease(d3.easeLinear)
-        .duration((d) => {return d.Duration/60 * speed})
+        .duration((d) => {return (d.Duration/60) *speed})
         .style("opacity", "0.75")
 
         .transition()
