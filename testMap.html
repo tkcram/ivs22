@@ -134,6 +134,7 @@
         }
         .filter-buttons{
             font-size: 0;
+            width: 11rem;
         }
         .filter-names{
         }
@@ -145,12 +146,15 @@
             margin-right: 5px;
         }
 
+        main{
+            background-color: black;
+        }
         #svgcontainer {
-            width: 100;
+            width: 100vw;
             height: 95vh;
             margin-left: auto;
             margin-right: auto;
-            background-color: #ccdcec;
+            background-color: #74bac9;
         }
         svg {
             background-color: #74bac9;
@@ -355,7 +359,7 @@ for (let i = 0; i < orderNames.length; i++){
     let orderName = document.createElement("td");
     let labelDiv = document.createElement("label");
     let iconDiv = '<i class="fa-solid fa-arrow-up-right-from-square"></i>'
-    let nameLink = `https://en.wikipedia.org/wiki/${orderNames[i]}`
+    let nameLink = `https://nzbirdsonline.org.nz/index.php?q=order-search&field_bird_order_tid=${orderNames[i]}`
     let nameText  = `<a href='${nameLink}' target='_blank'>${iconDiv}</a>`
     labelDiv.setAttribute('for',orderNames[i])
     labelDiv.setAttribute('class','order-filter')
@@ -506,7 +510,7 @@ d3.json("mapmd.json", (json) => {
 let tooltip = d3.select("body")
         .append("div")
         .style("position", "absolute")
-        .style("padding", "15px")
+        .style("padding", "0")
         .style("font", "12px sans-serif")
         .style("background", "whitesmoke")
         .style("color","#5a7388")
