@@ -4,7 +4,7 @@
 <head>
     <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
     <meta charset="utf-8">
-    <title> Interactive map visualization</title>
+    <title> NZ Bird Sightings</title>
     <script src="https://kit.fontawesome.com/c7d9c001a2.js" crossorigin="anonymous"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js"></script>
     <script src="https://d3js.org/d3.v4.js"></script>
@@ -12,163 +12,199 @@
     <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/1.6.19/topojson.min.js"></script>
     <style type="text/css">
-        body {
-            margin: 0;
-            background-color: whitesmoke;
-            font-family: 'Times New Roman', sans-serif;
-            font-weight: 300;
-        }
-        header{
-            display: flex;
-            justify-content: space-between;
-        }
-        input[type="radio" i]{
-            width: 0;
-            height: 0;
-            margin: 0;
-        }
-        h1 {
-            font-weight: 800;
-            color: #5a7388;
-            font-size: 24;
-            margin: 0;
-            padding-top: 0.25em;
-            padding-left: 1em;
-        }
-        #timer{
-            display: flex;
-            flex-direction: column;
-            justify-content: space-evenly;
-        }
-        #date-change{
-            width: auto;
-        }
-        #timer-buttons{
-            display: flex;
-            justify-content: space-evenly;
-        }
+    body {
+        background-color: whitesmoke;
+        font-family: 'Times New Roman', sans-serif;
+        font-weight: 300;
+        margin: 0;
+    }
 
-        .fa-pause.active{
-            color: red;
-            padding-bottom: 2px;
-            border-bottom: 2px solid red;
-        }
-        .fa-play.active{
-            color: green;
-            padding-bottom: 2px;
-            border-bottom: 2px solid green;
-        }
+    header{
+        display: flex;
+        justify-content: space-between;
+    }
 
-        .pause-button:hover > i{
-            color: red;
-            padding-bottom: 2px;
-            border-bottom: 2px solid red;
-        }
-        .play-button:hover > i{
-            color: green;
-            padding-bottom: 2px;
-            border-bottom: 2px solid green;
-        }
+    button{
+        cursor: pointer;
+        background: transparent;
+        border: none;
+        padding: 4px 8px;
 
-        #more-info{
-            display: flex;
-            justify-content: space-evenly;
-        }
-        .header-button{
-          text-align: center;
-          text-decoration: none;
-          display: inline-block;
-          border: none;
-          padding: 1.5em;
-          flex-grow: 1;
-          /*background-color: lightgray;*/
-          background-color: transparent;
-        }
+    }
+    button:hover{
+        background-color: #5a7388;
+    }
 
-        h3{
-            margin: 0;
-        }
-        #about .header-button {
-            border-right: 1px solid darkslategray;
-            border-left: 1px solid darkslategray;
-        }
-        .header-button:hover{
-            background-color: #5a7388;
-            color: white;
-        }
-        #about-div{
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 1;
-            padding:  12px;
-            width: auto;
-            height: auto;
-            background-color: whitesmoke;
-            border: 1px solid black;
-        }
-        #filters-div{
-            display: none;
-            position: absolute;
-            right: 0;
-            background-color: white;
-            overflow: scroll;
-            height: 75vh;
-            margin-right: 5vw;
-            margin-top: 3vh;
-            z-index: 1;
-            border: 1px solid black;
-            background-color: whitesmoke;
-            padding: 0.5em;
-        }
-        #filter-table{
-            text-align: left;
-        }
-        th{
-            height: 2em;
-            position: sticky;
-        }
-        #filter-table td:first-child{
-            text-align: center;
-        }
-        .filter-buttons{
-            font-size: 0;
-            width: 11rem;
-        }
-        .filter-names{
-        }
-        .order-filter{
-            display: flex;
-        }
-        .order-name{
-            margin: 0;
-            margin-right: 5px;
-        }
+    .play-button{
+        cursor: pointer;
+    }
 
-        main{
-            background-color: black;
-        }
-        #svgcontainer {
-            width: 100vw;
-            height: 95vh;
-            margin-left: auto;
-            margin-right: auto;
-            background-color: #74bac9;
-        }
-        svg {
-            background-color: #74bac9;
-        }
+    .pause-button{
+        cursor: pointer;
+    }
+    /*Title Module*/
+    h1 { 
+        color: #5a7388;
+        font-size: 24;
+        font-weight: 800;
+        margin: 0;
+        padding-left: 1em;
+        padding-top: 0.25em;
+    }
+    /*Timer Module*/
+    #timer{ 
+        display: flex;
+        flex-direction: column;
+        justify-content: space-evenly;
+    }
+    #date-change{
+        width: 100%;
+        font-family: 'Times New Roman', sans-serif;
+    }
+    #timer-buttons{
+        display: flex;
+        justify-content: space-evenly;
+    }
+    input[type="radio" i]{ /*Hides radio buttons*/
+        height: 0;
+        margin: 0;
+        width: 0;
+    }
+    .fa-pause.active{
+        border-bottom: 2px solid red;
+        color: red;
+        padding-bottom: 2px;
+    }
+    .pause-button:hover > i{
+        border-bottom: 2px solid red;
+        color: red;
+        padding-bottom: 2px;
+    }
+    .fa-play.active{
+        border-bottom: 2px solid green;
+        color: green;
+        padding-bottom: 2px;
+    }
+    .play-button:hover > i{
+        border-bottom: 2px solid green;
+        color: green;
+        padding-bottom: 2px;
+    }
 
-    </style>
+    /*Info Module*/
+    #more-info{
+        display: flex;
+        justify-content: space-evenly;
+    }
+    .header-button{
+      background-color: transparent;
+      border: none;
+      display: inline-block;
+      flex-grow: 1;
+      padding: 1.5em;
+      text-align: center;
+      text-decoration: none;
+    }
+    h3{  /*???*/
+    margin: 0;
+    } 
+    #about .header-button {  /*???*/
+        border-right: 1px solid darkslategray;
+        border-left: 1px solid darkslategray;
+    }
+    .header-button:hover{
+        background-color: #5a7388;
+        color: white;
+    }
+    #about-div{
+        background-color: whitesmoke;
+        border: 1px solid black;
+        height: auto;
+        left: 50%;
+        padding:  12px;
+        position: absolute;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        width: auto;
+        z-index: 1;
+    }
+    #advanced-div{
+        background-color: white;
+        background-color: whitesmoke;
+        /*border: 1px solid black;*/
+        display: none;
+        height: 75vh;
+        margin-right: 5vw;
+        margin-top: 3vh;
+        overflow: scroll;
+        padding: 0.5em;
+        position: absolute;
+        right: 0;
+        z-index: 1;
+        box-shadow: 0px 0px 4px black;
+    }
+    #advanced-table{
+        text-align: left;
+    }
+    th{
+        height: 2em;
+        position: sticky;
+    }
+    #advanced-table td:first-child{
+        text-align: center;
+    }
+    #advanced-table button:hover{
+        border-radius: 4px;
+        color: white;
+    }
+    .filter-names:disabled{
+        color: white;
+        background-color: #5a7388;
+        border-radius: 4px;
+    }
+    .advanced-buttons{
+        font-size: 0;
+        width: 11rem;
+    }
+    input[type='color']{
+        width: 25px;
+        height: 25px;
+    }
+    .order-filter{
+        display: flex;
+        font-family: 'Times New Roman', sans-serif;
+
+    }
+    .order-name{
+        margin: 0;
+        margin-right: 5px;
+    }
+
+    /*Map Module*/
+    #svgcontainer {
+        background-color: #74bac9;
+        height: 95vh;
+        margin-left: auto;
+        margin-right: auto;
+        width: 100vw;
+    }
+    svg {
+        background-color: #74bac9;
+    }
+
+    .tooltip-name {
+        color: #5a7388;
+    }
+
+</style>
 </head>
 
 <body>
     <header>
-        <div>
+        <div> <!-- Title Module -->
             <h1>NZ Bird Sightings</h1>
         </div>
-        <div id="timer">
+        <div id="timer"> <!-- Timer Module -->
             <input id="date-change" type="datetime-local" min="2021-01-01T00:00" max="2021-01-31T00:00" value="2021-01-01T00:00"></input>
             <div id="timer-buttons">
                 <label class='pause-button'>
@@ -189,11 +225,11 @@
                 </label> 
             </div>       
         </div>
-        <div id="more-info">
+        <div id="more-info"> <!-- Info Module -->
             <div id="about">
-                <button class = 'header-button' onclick="showAbout()"><h3>About</h3></button>
+                <button class = 'header-button' onclick="showAbout('about','advanced')"><h3>About</h3></button>
                 <div id="about-div" style="display: none">
-                    <button onclick="showAbout()">x</button>
+                    <button onclick="showAbout('about','advanced')">x</button>
                     <p>This was made as the final project for INFO 658 at Pratt Institute, towards the completion of an MS in Data Analytics and Vizualisation</p>
                     <p>Author: Tk Cram</p>
                     <p>Instructor: Chris Allen Sula</p>
@@ -203,44 +239,42 @@
                 </div>
             </div>
             <div id="advanced">
-                <button class = 'header-button' onclick="showAdvanced()"><h3>Advanced</h3></button>
-                <div id='filters-div' style="display: none">
-                    <table id="filter-table">
+                <button class = 'header-button' onclick="showAbout('advanced','about')"><h3>Advanced</h3></button>
+                <div id='advanced-div' style="display: none">
+                    <table id="advanced-table">
                         <tr>
-                            <th><button id='randomise'>Colour <i class="fa-solid fa-shuffle"></i></button></th>
+                            <th><button id='randomise'><i class="fa-solid fa-shuffle"></i></button></th>
                             <th></th>
-                            <th class="filter-buttons">
-                                <button class="filter-names" id="sci-names" disabled onclick="sciNames()">Scientific</button>
-                                <button class="filter-names" id="com-names" onclick="comNames()">Common</button></th>
-                            <th><button onclick="showAdvanced()">x</button></th>
-                        </tr>
-                        <tr>
-                            <td><input type='color' name='all-color' id='all-colour' value='#234d20'></td>
-                            <td><input type='checkbox' name='all-filter' id='all-filter' checked='true'></td>
-                            <td><label for='all-filter'>All Orders</label></th>
+                            <th class="advanced-buttons">
+                             <button class="filter-names" id="com-names" disabled onclick="comNames()">Common</button>
+                             <button class="filter-names" id="sci-names" onclick="sciNames()">Scientific</button>
+                         </th>
+                         <th><button onclick="showAbout('advanced','about')">X</button></th>
+                     </tr>
+                     <tr>
+                        <td><input type='color' name='all-color' id='all-colour' value='#234d20'></td>
+                        <td><input type='checkbox' name='all-filter' id='all-filter' checked='true'></td>
+                        <td><label for='all-filter'>All Orders</label></th>
                         </tr>
                     </table>
                 </div>
-        </div>
-    </header>
-<main>
-    <!-- <div id="welcome">Click this <button id="start-button" onclick="begin()">button</button></div> -->
-    <div id="svgcontainer">
-        <div id="svganchor"></div>
-    </div>
-</main>
+            </div>
+        </header>
+        <main>
+            <div id="svgcontainer">
+                <div id="svganchor"></div>
+            </div>
+        </main>
 
-<script type="text/javascript">
-
-//****VANILLA****
+        <script type="text/javascript">
 
 //***DATA***
 //**ORDERS**
-let orderNames = ['Accipitriformes','Anseriformes','Apterygiformes','Bucerotiformes','Caprimulgiformes','Cariamiformes','Casuariiformes','Cathartiformes','Charadriiformes','Ciconiiformes','Coliiformes','Columbiformes','Coraciiformes','Cuculiformes','Eurypygiformes','Falconiformes','Galbuliformes','Galliformes','Gaviiformes','Gruiformes','Leptosomiformes','Mesitornithiformes','Musophagiformes','Opisthocomiformes','Otidiformes','Passeriformes','Pelecaniformes','Phaethontiformes','Phoenicopteriformes','Piciformes','Podicipediformes','Procellariiformes','Psittaciformes','Pterocliformes','Rheiformes','Sphenisciformes','Strigiformes','Struthioniformes','Suliformes','Tinamiformes','Trogoniformes'];
+let orderNames = ['Suliformes','Otidiformes','Casuariiformes','Cuculiformes','Leptosomiformes','Anseriformes','Falconiformes','Phoenicopteriformes','Podicipediformes','Accipitriformes','Opisthocomiformes','Bucerotiformes','Galbuliformes','Eurypygiformes','Apterygiformes','Gaviiformes','Mesitornithiformes','Coliiformes','Cathartiformes','Caprimulgiformes','Struthioniformes','Strigiformes','Psittaciformes','Passeriformes','Pelecaniformes','Sphenisciformes','Galliformes','Columbiformes','Gruiformes','Rheiformes','Coraciiformes','Pterocliformes','Cariamiformes','Procellariiformes','Ciconiiformes','Tinamiformes','Trogoniformes','Trogoniformes','Phaethontiformes','Musophagiformes','Charadriiformes','Piciformes'];
 
 let orderFilterList = [...orderNames]
 
-let orderCommonNames = ['Hawks, Eagles & Kites','Ducks','Kiwi','Hoopoes & Hornbills','Night Jars & Allies','Seriema','Cassowaries','New World Vultures','Waders','Storks','Mousebirds','Pigeons & Doves','Rollers & Allies','Cuckoos','Kago, Sunbittern','Falcons','Jacamars & Puffbirds','Pheasants','Loons','Rails','Cucukoo Roller','Mesites','Turacos','Hoatzin','Bustards','Passerines','Pelicans','Tropicbirds','Flamingos','Woodpeckers & Allies','Grebes','Shearwaters','Parrots','Sandgrouses','Rheas','Penguins','Owls','Ostriches','Boobies and Gannets','Tinamous','Trogons']
+let orderCommonNames = ['Boobies and Gannets','Bustards','Cassowaries','Cuckoos','Cucukoo Roller','Ducks','Falcons','Flamingos','Grebes','Hawks, Eagles & Kites','Hoatzin','Hoopoes & Hornbills','Jacamars & Puffbirds','Kago, Sunbittern','Kiwi','Loons','Mesites','Mousebirds','New World Vultures','Night Jars & Allies','Ostriches','Owls','Parrots','Passerines','Pelicans','Penguins','Pheasants','Pigeons & Doves','Rails','Rheas','Rollers & Allies','Sandgrouses','Seriema','Shearwaters','Storks','Tinamous','Trogons','Trogons','Tropicbirds','Turacos','Waders','Woodpeckers & Allies']
 
 let nzOrderNames = ['Columbiformes', 'Suliformes', 'Passeriformes', 'Anseriformes', 'Charadriiformes', 'Galliformes', 'Gruiformes', 'Procellariiformes', 'Psittaciformes', 'Coraciiformes', 'Apterygiformes', 'Sphenisciformes', 'Strigiformes', 'Podicipediformes', 'Pelecaniformes', 'Cuculiformes', 'Accipitriformes', 'Falconiformes', '', 'Casuariiformes']
 
@@ -272,8 +306,8 @@ function pauser() {
         let playButtons = document.querySelectorAll('[name="playback-speed"]')
         playButtons.forEach(button => {
             if (button.value > 0){
-            button.addEventListener("click", playbuttonclick)}
-        })
+                button.addEventListener("click", playbuttonclick)}
+            })
     })
 }
 
@@ -283,6 +317,7 @@ document.getElementById("p0")
     paused = true;
 })
 
+// The labels are a series of icons so this ensures the entire group is changed
 function buttonActive (){
     let playbackButtons = document.querySelectorAll('[name="playback-speed"] ~ i')
     playbackButtons.forEach(button =>{
@@ -294,33 +329,25 @@ function buttonActive (){
     });
 }
 
-//***ABOUT***
-let aboutDiv = document.getElementById('about-div')
-function showAbout(){
-    if (aboutDiv.style.display === "none") {
-        aboutDiv.style.display = "block";
-        advancedDiv.style.display = "none"
-
-    } else {
-        aboutDiv.style.display = "none";
-    }
-}
-
-//***LEGEND***
-let legend = document.getElementById('filter-table').tBodies[0];
-let advancedDiv = document.getElementById('filters-div')
+//***INFO***
 //**SHOW/HIDE**
-function showAdvanced(){
-    if (advancedDiv.style.display === "none") {
-        advancedDiv.style.display = "block";
-        aboutDiv.style.display = "none"
+function showAbout(a,b){
+    let div1 = document.getElementById(a+'-div')
+    let div2 = document.getElementById(b+'-div')
+
+    if (div1.style.display === "none") {
+        div1.style.display = "block";
+        div2.style.display = "none"
     } else {
-        advancedDiv.style.display = "none";
+        div1.style.display = "none";
     }
 }
+
+//***ADAVNCED***
+let advancedTable = document.getElementById('advanced-table').tBodies[0];
 
 document.addEventListener('mouseup', function(e) {
-    var container = document.getElementById('filters-div');
+    var container = document.getElementById('advanced-div');
     if (!container.contains(e.target)) {
         container.style.display = 'none';
     }
@@ -363,7 +390,7 @@ for (let i = 0; i < orderNames.length; i++){
     let nameText  = `<a href='${nameLink}' target='_blank'>${iconDiv}</a>`
     labelDiv.setAttribute('for',orderNames[i])
     labelDiv.setAttribute('class','order-filter')
-    labelDiv.innerHTML = `<p class="order-name">${orderNames[i]}</p> ${nameText}`
+    labelDiv.innerHTML = `<p class="order-name">${orderCommonNames[i]}</p> ${nameText}`
     orderName.append(labelDiv)
 
     //*COLOURS*
@@ -382,10 +409,10 @@ for (let i = 0; i < orderNames.length; i++){
     orderRow.appendChild(orderColour);
     orderRow.appendChild(orderFilter);
     orderRow.appendChild(orderName);
-    legend.appendChild(orderRow);
+    advancedTable.appendChild(orderRow);
 
     if (!nzOrderNames.includes(orderNames[i])){
-        orderRow.setAttribute('style','opacity: 0.5');
+        orderRow.setAttribute('style','display: none');
         colourButton.disabled = true
         colourButton.value = "red"
         filterButton.checked = false
@@ -450,20 +477,6 @@ function comNames(){
         nameList[i].innerText = orderCommonNames[i]
     }
 }
-// nameSwitchButton.addEventListener("click", function() {
-//     for (let i = 0; i < nameList.length; i++){
-//         if (nameSwitchButton.innerText === 'Scientific Name'){
-//             nameList[i].innerText = orderCommonNames[i]
-//         } else {
-//             nameList[i].innerText = orderNames[i]
-//         }
-//     }
-//     if (nameSwitchButton.innerText === 'Scientific Name'){
-//         nameSwitchButton.innerText = 'Common Name'
-//     } else {
-//         nameSwitchButton.innerText = 'Scientific Name'
-//     }
-// })
 
 //****D3****
 //***MAP LAYER***
@@ -500,24 +513,25 @@ d3.json("mapmd.json", (json) => {
     .attr("fill", (d, i) => {return '#e1eee1'})
     .each((d, i, j) => {
 // Fix to move map behind the plotted points
-    let firstChild = j[i].parentNode.firstChild;
-    if (firstChild) {
-        j[i].parentNode.insertBefore(j[i], firstChild);
-        }
-    });
+let firstChild = j[i].parentNode.firstChild;
+if (firstChild) {
+    j[i].parentNode.insertBefore(j[i], firstChild);
+}
+});
 });
 
+// **TOOLTIPS**
 let tooltip = d3.select("body")
-        .append("div")
-        .style("position", "absolute")
-        .style("padding", "0")
-        .style("font", "12px sans-serif")
-        .style("background", "whitesmoke")
-        .style("color","#5a7388")
-        .style("border", "0px")
-        .style("border-radius", "8px")
-        .style("z-index", "10")
-        .style("visibility", "hidden");
+.append("div")
+.style("position", "absolute")
+.style("padding", "5px")
+.style("font", "12px sans-serif")
+.style("background", "whitesmoke")
+.style("color","black")
+.style("border", "0px")
+.style("border-radius", "8px")
+.style("z-index", "10")
+.style("visibility", "hidden");
 
 //***DATA LAYER***
 d3.json("nzBirdTest.json", async function(error, data){
@@ -530,16 +544,13 @@ d3.json("nzBirdTest.json", async function(error, data){
         keyData = Object.keys(data)[i].replace(' ','T')
         dateChange.value = keyData
         dateChange.addEventListener("input", function(input) {
-            console.log(dateChange.value)
             if (dateChange.value == ""){
                 dateChange.value = "2021-01-01T00:00"
             }
-
             i = Object.keys(data)
             .indexOf(dateChange.value
-            .replace('T',' ')
-            .replace(/:[0-9]*/g,':00'))
-
+                .replace('T',' ')
+                .replace(/:[0-9]*/g,':00'))
         })
 
         if (paused == true) {
@@ -560,33 +571,34 @@ d3.json("nzBirdTest.json", async function(error, data){
         .data(() => birdsAtTime)
         .enter()
         .append("a")
-            .attr("xlink:href", function(d) {
-                let birdString = d.CommonName.replace(' ','-')
-                return "https://nzbirdsonline.org.nz/species/"+birdString})
-            .attr('target','_blank')
+        .attr("xlink:href", function(d) {
+            let birdString = d.CommonName.replaceAll(' ','-')
+            return "https://nzbirdsonline.org.nz/species/"+birdString})
+        .attr('target','_blank')
+
         .append("circle")
-            .filter((d) => {return orderFilterList.includes(d.Order)})
-            .attr("cx", (d) => {return projection([+d.Longitude, +d.Latitude])[0]})
-            .attr("cy", (d) => {return projection([+d.Longitude, +d.Latitude])[1]})
-            .attr("r", (d) => {return Math.log(d.Count)+1})
-            .style("fill", function(d){return color(d.Order)})
-            .attr("stroke-width", 0.1)
-            .attr("stroke", 'white')
-            .attr("opacity", 0)
-            .on("mouseover", (d) => {
-                let trueCount = Math.E ^ d.Count
-                tooltip.html(`<b>${d.CommonName}</b> (<em>${d.ScientificName}</em>) </br>
-                            Order: ${d.Order} </br>
-                            Count: ${trueCount} </br>
-                            Location: ${d.Latitude}, ${d.Longitude} </br>
-                            Observation length: ${d.Duration} minutes`);
-                return tooltip.style("top",(d3.event.pageY-10)+"px")
-                    .style("left",(d3.event.pageX+10)+"px")
-                    .style("visibility", "visible")
-            })
-            .on("mouseout",() => {
-                return tooltip.style("visibility", "hidden");
-            })
+        .filter((d) => {return orderFilterList.includes(d.Order)})
+        .attr("cx", (d) => {return projection([+d.Longitude, +d.Latitude])[0]})
+        .attr("cy", (d) => {return projection([+d.Longitude, +d.Latitude])[1]})
+        .attr("r", (d) => {return Math.log(d.Count)+1})
+        .style("fill", function(d){return color(d.Order)})
+        .attr("stroke-width", 0.1)
+        .attr("stroke", 'white')
+        .attr("opacity", 0)
+        .on("mouseover", (d) => {
+            let startTime = Object.keys(data)[i].replace(":00", `:${d.Delay}`)
+            tooltip.html(`<span class="tooltip-name"><b>${d.CommonName}</b> (<em>${d.ScientificName}</em>)</span> </br>
+                Order: ${d.Order} </br>
+                Count: ${d.Count} </br>
+                Where: ${d.Latitude}, ${d.Longitude} </br>
+                When: ${startTime} for ${d.Duration} minutes`);
+            return tooltip.style("top",(d3.event.pageY-10)+"px")
+            .style("left",(d3.event.pageX+10)+"px")
+            .style("visibility", "visible")
+        })
+        .on("mouseout",() => {
+            return tooltip.style("visibility", "hidden");
+        })
 
         //*ANIMATING POINTS*
         .transition()
